@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>BAINT AIOPs — Human-Centric AI (Chat Demo)</title>
+<title>BAINT AIOPs — Human-Centric AI (Multilingual Chat Demo)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -16,7 +16,6 @@ body {
   height: 100vh;
 }
 
-/* Device shell */
 .device {
   width: 420px;
   height: 720px;
@@ -28,7 +27,6 @@ body {
   flex-direction: column;
 }
 
-/* Top bar */
 .top-bar {
   height: 40px;
   background: #111;
@@ -40,7 +38,6 @@ body {
   font-size: 14px;
 }
 
-/* Screen */
 .screen {
   flex: 1;
   background: #f9fafb;
@@ -50,7 +47,6 @@ body {
   flex-direction: column;
 }
 
-/* Chat area */
 .chat {
   flex: 1;
   overflow-y: auto;
@@ -67,14 +63,14 @@ body {
   line-height: 1.4;
 }
 
-.human {
+.teacher {
   background: #2563eb;
   color: #fff;
   align-self: flex-end;
   border-bottom-right-radius: 4px;
 }
 
-.other-human {
+.student {
   background: #e5e7eb;
   color: #111;
   align-self: flex-start;
@@ -90,59 +86,126 @@ body {
   opacity: 0.95;
 }
 
-/* Footer */
+/* Footer and language selector */
 .footer {
   text-align: center;
   font-size: 11px;
   color: #6b7280;
   margin-top: 6px;
 }
+
+#language-select {
+  margin-bottom: 8px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  border: 1px solid #d1d5db;
+  width: 100%;
+}
 </style>
 </head>
 
 <body>
-
 <div class="device">
   <div class="top-bar">BAINT AIOPs — Human-Centric AI</div>
 
   <div class="screen">
+    <select id="language-select" onchange="updateChatLanguage()">
+      <option value="en">English</option>
+      <option value="zh">Chinese</option>
+      <option value="es">Spanish</option>
+      <option value="fr">French</option>
+    </select>
     <div class="chat" id="chat"></div>
     <div class="footer">
-      Humans communicate • BAINT AIOPs assists
+      Teacher explains • Student observes • BAINT AIOPs assists • Multilingual
     </div>
   </div>
 </div>
 
 <script>
 const chat = document.getElementById("chat");
+const languageSelect = document.getElementById("language-select");
 
 const messages = [
-  { type: "other-human", text: "I’m trying to explain photosynthesis to students, but they get confused easily." },
-  { type: "human", text: "Yeah, same here. We need a way to explain it step by step without overwhelming them." },
-  { type: "ai", text: "BAINT AIOPs suggests breaking the lesson into simple stages and letting the teacher control the pace." },
-  { type: "human", text: "So the AI doesn’t replace the teacher?" },
-  { type: "ai", text: "Correct. BAINT AIOPs supports teachers by organizing explanations. Humans remain in control." },
-  { type: "other-human", text: "That makes sense. Students can observe, listen, and ask questions instead of guessing." },
-  { type: "ai", text: "Result: clearer learning, reduced confusion, and human-led education." }
+  { 
+    type: "teacher", 
+    text: { en: "I’m trying to explain photosynthesis to students, but they get confused easily.",
+            zh: "我正在尝试向学生解释光合作用，但他们很容易困惑。",
+            es: "Estoy tratando de explicar la fotosíntesis a los estudiantes, pero se confunden fácilmente.",
+            fr: "J'essaie d'expliquer la photosynthèse aux étudiants, mais ils se confondent facilement." }
+  },
+  { 
+    type: "student", 
+    text: { en: "Yeah, I’m listening but I get lost sometimes.",
+            zh: "是的，我在听，但有时我会迷失。",
+            es: "Sí, estoy escuchando, pero a veces me pierdo.",
+            fr: "Oui, j'écoute mais parfois je me perds." }
+  },
+  { 
+    type: "ai", 
+    text: { en: "BAINT AIOPs suggests breaking the lesson into simple stages and letting the teacher control the pace.",
+            zh: "BAINT AIOPs建议将课程分解为简单阶段，并让教师控制进度。",
+            es: "BAINT AIOPs sugiere dividir la lección en etapas simples y dejar que el profesor controle el ritmo.",
+            fr: "BAINT AIOPs suggère de diviser la leçon en étapes simples et de laisser l'enseignant contrôler le rythme." }
+  },
+  { 
+    type: "teacher", 
+    text: { en: "So the AI doesn’t replace me?",
+            zh: "所以 AI 不会取代我吗？",
+            es: "Entonces, ¿la IA no me reemplaza?",
+            fr: "Donc l'IA ne me remplace pas ?" }
+  },
+  { 
+    type: "ai", 
+    text: { en: "Correct. BAINT AIOPs supports teachers by organizing explanations. Humans remain in control.",
+            zh: "正确。BAINT AIOPs通过组织讲解支持教师。人类保持控制。",
+            es: "Correcto. BAINT AIOPs apoya a los maestros organizando las explicaciones. Los humanos siguen teniendo el control.",
+            fr: "Correct. BAINT AIOPs soutient les enseignants en organisant les explications. Les humains restent aux commandes." }
+  },
+  { 
+    type: "student", 
+    text: { en: "That makes sense. I can follow along better now.",
+            zh: "这很有道理。我现在可以更好地跟上了。",
+            es: "Tiene sentido. Ahora puedo seguir mejor.",
+            fr: "Ça a du sens. Je peux mieux suivre maintenant." }
+  },
+  { 
+    type: "ai", 
+    text: { en: "Result: clearer learning, reduced confusion, human-led education.",
+            zh: "结果：学习更清晰，混淆减少，以人为主导的教育。",
+            es: "Resultado: aprendizaje más claro, menos confusión, educación dirigida por humanos.",
+            fr: "Résultat : apprentissage plus clair, confusion réduite, éducation dirigée par l'humain." }
+  }
 ];
 
 let index = 0;
+let currentLanguage = "en";
 
 function addMessage() {
   if (index >= messages.length) return;
 
   const msg = document.createElement("div");
   msg.className = "msg " + messages[index].type;
-  msg.innerText = messages[index].text;
+  msg.dataset.text = JSON.stringify(messages[index].text); // save all languages
+  msg.innerText = messages[index].text[currentLanguage];
   chat.appendChild(msg);
 
   chat.scrollTop = chat.scrollHeight;
-  index++;
 
-  setTimeout(addMessage, 900);
+  let delay = messages[index].type === 'ai' ? 1400 : 900;
+  index++;
+  setTimeout(addMessage, delay);
 }
 
-// Start chat
+function updateChatLanguage() {
+  currentLanguage = languageSelect.value;
+  document.querySelectorAll(".chat .msg").forEach(msg => {
+    const textObj = JSON.parse(msg.dataset.text);
+    msg.innerText = textObj[currentLanguage];
+  });
+}
+
 setTimeout(addMessage, 600);
 </script>
 
