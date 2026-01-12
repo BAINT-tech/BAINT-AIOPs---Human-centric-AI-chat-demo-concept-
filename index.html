@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>BAINT AIOPs — Human-Centric AI (Chat Demo)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+  margin: 0;
+  background: #ffffff;
+  font-family: Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+/* Device shell */
+.device {
+  width: 420px;
+  height: 720px;
+  background: #000;
+  border-radius: 28px;
+  padding: 12px;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Top bar */
+.top-bar {
+  height: 40px;
+  background: #111;
+  color: #fff;
+  border-radius: 20px 20px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+/* Screen */
+.screen {
+  flex: 1;
+  background: #f9fafb;
+  border-radius: 0 0 20px 20px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Chat area */
+.chat {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 10px;
+}
+
+/* Messages */
+.msg {
+  max-width: 75%;
+  padding: 10px 14px;
+  border-radius: 14px;
+  margin-bottom: 10px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.human {
+  background: #2563eb;
+  color: #fff;
+  align-self: flex-end;
+  border-bottom-right-radius: 4px;
+}
+
+.other-human {
+  background: #e5e7eb;
+  color: #111;
+  align-self: flex-start;
+  border-bottom-left-radius: 4px;
+}
+
+.ai {
+  background: #111827;
+  color: #e5e7eb;
+  align-self: center;
+  border-radius: 10px;
+  font-size: 12px;
+  opacity: 0.95;
+}
+
+/* Footer */
+.footer {
+  text-align: center;
+  font-size: 11px;
+  color: #6b7280;
+  margin-top: 6px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="device">
+  <div class="top-bar">BAINT AIOPs — Human-Centric AI</div>
+
+  <div class="screen">
+    <div class="chat" id="chat"></div>
+    <div class="footer">
+      Humans communicate • BAINT AIOPs assists
+    </div>
+  </div>
+</div>
+
+<script>
+const chat = document.getElementById("chat");
+
+const messages = [
+  { type: "other-human", text: "I’m trying to explain photosynthesis to students, but they get confused easily." },
+  { type: "human", text: "Yeah, same here. We need a way to explain it step by step without overwhelming them." },
+  { type: "ai", text: "BAINT AIOPs suggests breaking the lesson into simple stages and letting the teacher control the pace." },
+  { type: "human", text: "So the AI doesn’t replace the teacher?" },
+  { type: "ai", text: "Correct. BAINT AIOPs supports teachers by organizing explanations. Humans remain in control." },
+  { type: "other-human", text: "That makes sense. Students can observe, listen, and ask questions instead of guessing." },
+  { type: "ai", text: "Result: clearer learning, reduced confusion, and human-led education." }
+];
+
+let index = 0;
+
+function addMessage() {
+  if (index >= messages.length) return;
+
+  const msg = document.createElement("div");
+  msg.className = "msg " + messages[index].type;
+  msg.innerText = messages[index].text;
+  chat.appendChild(msg);
+
+  chat.scrollTop = chat.scrollHeight;
+  index++;
+
+  setTimeout(addMessage, 900);
+}
+
+// Start chat
+setTimeout(addMessage, 600);
+</script>
+
+</body>
+</html>
