@@ -16,9 +16,10 @@ body {
   height: 100vh;
 }
 
+/* Device shell */
 .device {
   width: 420px;
-  height: 720px;
+  height: 780px;
   background: #000;
   border-radius: 28px;
   padding: 12px;
@@ -27,17 +28,28 @@ body {
   flex-direction: column;
 }
 
+/* Top bar */
 .top-bar {
-  height: 40px;
+  height: 50px;
   background: #111;
   color: #fff;
   border-radius: 20px 20px 0 0;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   font-size: 14px;
+  padding: 0 12px;
 }
 
+/* Language selector */
+select {
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: none;
+  font-size: 13px;
+}
+
+/* Screen */
 .screen {
   flex: 1;
   background: #f9fafb;
@@ -47,19 +59,24 @@ body {
   flex-direction: column;
 }
 
+/* Chat area */
 .chat {
   flex: 1;
   overflow-y: auto;
   padding-bottom: 10px;
+  display: flex;
+  flex-direction: column;
 }
 
+/* Messages */
 .msg {
   max-width: 75%;
-  padding: 10px 14px;
+  padding: 12px 16px;
   border-radius: 14px;
-  margin-bottom: 10px;
+  margin-bottom: 14px;
   font-size: 13px;
-  line-height: 1.4;
+  line-height: 1.5;
+  word-wrap: break-word;
 }
 
 .teacher {
@@ -67,6 +84,7 @@ body {
   color: #fff;
   align-self: flex-end;
   border-bottom-right-radius: 4px;
+  margin-top: 6px;
 }
 
 .student {
@@ -74,6 +92,7 @@ body {
   color: #111;
   align-self: flex-start;
   border-bottom-left-radius: 4px;
+  margin-top: 6px;
 }
 
 .ai {
@@ -83,165 +102,108 @@ body {
   border-radius: 10px;
   font-size: 12px;
   opacity: 0.95;
-  position: relative;
+  margin-top: 10px;
 }
 
-/* Typing dots animation */
-.typing-dots {
-  display: inline-block;
-}
-.typing-dots::after {
-  content: "…";
-  animation: blink 1s infinite;
-}
-@keyframes blink {
-  0%, 50%, 100% { opacity: 0; }
-  25%, 75% { opacity: 1; }
-}
-
+/* Footer */
 .footer {
   text-align: center;
   font-size: 11px;
   color: #6b7280;
   margin-top: 6px;
 }
-
-#language-select {
-  margin-bottom: 8px;
-  padding: 6px 10px;
-  border-radius: 6px;
-  font-size: 13px;
-  border: 1px solid #d1d5db;
-  width: 100%;
-}
 </style>
 </head>
 
 <body>
+
 <div class="device">
-  <div class="top-bar">BAINT AIOPs — Human-Centric AI</div>
+  <div class="top-bar">
+    BAINT AIOPs — Human-Centric AI
+    <select id="language" onchange="resetChat()">
+      <option value="en">English</option>
+      <option value="zh">中文</option>
+      <option value="es">Español</option>
+      <option value="fr">Français</option>
+    </select>
+  </div>
 
   <div class="screen">
-    <select id="language-select" onchange="updateChatLanguage()">
-      <option value="en">English</option>
-      <option value="zh">Chinese</option>
-      <option value="es">Spanish</option>
-      <option value="fr">French</option>
-    </select>
     <div class="chat" id="chat"></div>
     <div class="footer">
-      Teacher explains • Student observes • BAINT AIOPs assists • Multilingual
+      Humans communicate • BAINT AIOPs assists
     </div>
   </div>
 </div>
 
 <script>
 const chat = document.getElementById("chat");
-const languageSelect = document.getElementById("language-select");
+const languageSelect = document.getElementById("language");
 
-const messages = [
-  { 
-    type: "teacher", 
-    text: { en: "I’m trying to explain photosynthesis to students, but they get confused easily.",
-            zh: "我正在尝试向学生解释光合作用，但他们很容易困惑。",
-            es: "Estoy tratando de explicar la fotosíntesis a los estudiantes, pero se confunden fácilmente.",
-            fr: "J'essaie d'expliquer la photosynthèse aux étudiants, mais ils se confondent facilement." }
-  },
-  { 
-    type: "student", 
-    text: { en: "Yeah, I’m listening but I get lost sometimes.",
-            zh: "是的，我在听，但有时我会迷失。",
-            es: "Sí, estoy escuchando, pero a veces me pierdo.",
-            fr: "Oui, j'écoute mais parfois je me perds." }
-  },
-  { 
-    type: "ai", 
-    text: { en: "BAINT AIOPs suggests breaking the lesson into simple stages and letting the teacher control the pace.",
-            zh: "BAINT AIOPs建议将课程分解为简单阶段，并让教师控制进度。",
-            es: "BAINT AIOPs sugiere dividir la lección en etapas simples y dejar que el profesor controle el ritmo.",
-            fr: "BAINT AIOPs suggère de diviser la leçon en étapes simples et de laisser l'enseignant contrôler le rythme." }
-  },
-  { 
-    type: "teacher", 
-    text: { en: "So the AI doesn’t replace me?",
-            zh: "所以 AI 不会取代我吗？",
-            es: "Entonces, ¿la IA no me reemplaza?",
-            fr: "Donc l'IA ne me remplace pas ?" }
-  },
-  { 
-    type: "ai", 
-    text: { en: "Correct. BAINT AIOPs supports teachers by organizing explanations. Humans remain in control.",
-            zh: "正确。BAINT AIOPs通过组织讲解支持教师。人类保持控制。",
-            es: "Correcto. BAINT AIOPs apoya a los maestros organizando las explicaciones. Los humanos siguen teniendo el control.",
-            fr: "Correct. BAINT AIOPs soutient les enseignants en organisant les explications. Les humains restent aux commandes." }
-  },
-  { 
-    type: "student", 
-    text: { en: "That makes sense. I can follow along better now.",
-            zh: "这很有道理。我现在可以更好地跟上了。",
-            es: "Tiene sentido. Ahora puedo seguir mejor.",
-            fr: "Ça a du sens. Je peux mieux suivre maintenant." }
-  },
-  { 
-    type: "ai", 
-    text: { en: "Result: clearer learning, reduced confusion, human-led education.",
-            zh: "结果：学习更清晰，混淆减少，以人为主导的教育。",
-            es: "Resultado: aprendizaje más claro, menos confusión, educación dirigida por humanos.",
-            fr: "Résultat : apprentissage plus clair, confusion réduite, éducation dirigée par l'humain." }
-  }
-];
+const messagesData = {
+  en: [
+    { type: "teacher", text: "I’m trying to explain photosynthesis to students, but they get confused easily." },
+    { type: "student", text: "Yeah, same here. We need a way to explain it step by step without overwhelming them." },
+    { type: "ai", text: "BAINT AIOPs suggests breaking the lesson into simple stages and letting the teacher control the pace." },
+    { type: "teacher", text: "So the AI doesn’t replace the teacher?" },
+    { type: "ai", text: "Correct. BAINT AIOPs supports teachers by organizing explanations. Humans remain in control." },
+    { type: "student", text: "That makes sense. Students can observe, listen, and ask questions instead of guessing." },
+    { type: "ai", text: "Result: clearer learning, reduced confusion, and human-led education." }
+  ],
+  zh: [
+    { type: "teacher", text: "我正在尝试向学生讲解光合作用，但他们很容易感到困惑。" },
+    { type: "student", text: "是的，我也有同样的问题。我们需要一步一步解释，而不会让他们不知所措。" },
+    { type: "ai", text: "BAINT AIOPs 建议将课程分解为简单阶段，并让教师掌控节奏。" },
+    { type: "teacher", text: "所以 AI 不会取代教师吗？" },
+    { type: "ai", text: "正确。BAINT AIOPs 通过组织讲解来支持教师。人类保持掌控。" },
+    { type: "student", text: "这很合理。学生可以观察、聆听并提问，而不是猜测。" },
+    { type: "ai", text: "结果：学习更清晰，混淆减少，由人主导教育。" }
+  ],
+  es: [
+    { type: "teacher", text: "Estoy intentando explicar la fotosíntesis a los estudiantes, pero se confunden fácilmente." },
+    { type: "student", text: "Sí, yo también. Necesitamos una manera de explicarlo paso a paso sin abrumarlos." },
+    { type: "ai", text: "BAINT AIOPs sugiere dividir la lección en etapas simples y dejar que el profesor controle el ritmo." },
+    { type: "teacher", text: "¿Entonces la IA no reemplaza al profesor?" },
+    { type: "ai", text: "Correcto. BAINT AIOPs apoya a los profesores organizando las explicaciones. Los humanos mantienen el control." },
+    { type: "student", text: "Tiene sentido. Los estudiantes pueden observar, escuchar y hacer preguntas en lugar de adivinar." },
+    { type: "ai", text: "Resultado: aprendizaje más claro, confusión reducida y educación liderada por humanos." }
+  ],
+  fr: [
+    { type: "teacher", text: "J'essaie d'expliquer la photosynthèse aux élèves, mais ils se confondent facilement." },
+    { type: "student", text: "Oui, moi aussi. Nous devons expliquer étape par étape sans les submerger." },
+    { type: "ai", text: "BAINT AIOPs suggère de diviser la leçon en étapes simples et de laisser l'enseignant contrôler le rythme." },
+    { type: "teacher", text: "Donc l'IA ne remplace pas l'enseignant ?" },
+    { type: "ai", text: "Exact. BAINT AIOPs soutient les enseignants en organisant les explications. Les humains gardent le contrôle." },
+    { type: "student", text: "C'est logique. Les élèves peuvent observer, écouter et poser des questions au lieu de deviner." },
+    { type: "ai", text: "Résultat : apprentissage plus clair, confusion réduite et éducation dirigée par l'humain." }
+  ]
+};
 
 let index = 0;
-let currentLanguage = "en";
 
-function typeAIMessage(msgElement, fullText, i=0) {
-  if(i < fullText.length) {
-    msgElement.innerText += fullText[i];
-    chat.scrollTop = chat.scrollHeight;
-    setTimeout(() => typeAIMessage(msgElement, fullText, i+1), 40);
-  }
-}
-
-function addMessage() {
+function addMessage(messages) {
   if (index >= messages.length) return;
 
   const msg = document.createElement("div");
   msg.className = "msg " + messages[index].type;
-  msg.dataset.text = JSON.stringify(messages[index].text);
+  msg.innerText = messages[index].text;
+  chat.appendChild(msg);
 
-  if(messages[index].type === "ai") {
-    msg.innerHTML = "<span class='typing-dots'></span>";
-    chat.appendChild(msg);
-    chat.scrollTop = chat.scrollHeight;
-
-    setTimeout(() => {
-      msg.innerHTML = "";
-      typeAIMessage(msg, messages[index].text[currentLanguage]);
-    }, 1000); // AI typing delay
-  } else {
-    msg.innerText = messages[index].text[currentLanguage];
-    chat.appendChild(msg);
-    chat.scrollTop = chat.scrollHeight;
-  }
-
+  chat.scrollTop = chat.scrollHeight;
   index++;
-  let delay = messages[index-1].type === 'ai' ? 1800 : 900;
-  setTimeout(addMessage, delay);
+
+  setTimeout(() => addMessage(messages), 900);
 }
 
-function updateChatLanguage() {
-  currentLanguage = languageSelect.value;
-  document.querySelectorAll(".chat .msg").forEach(msg => {
-    const textObj = JSON.parse(msg.dataset.text);
-    if(msg.classList.contains("ai")) {
-      msg.innerHTML = textObj[currentLanguage];
-    } else {
-      msg.innerText = textObj[currentLanguage];
-    }
-  });
+function resetChat() {
+  chat.innerHTML = "";
+  index = 0;
+  const selectedLang = languageSelect.value;
+  addMessage(messagesData[selectedLang]);
 }
 
-setTimeout(addMessage, 600);
+// Start default chat
+addMessage(messagesData['en']);
 </script>
 
 </body>
