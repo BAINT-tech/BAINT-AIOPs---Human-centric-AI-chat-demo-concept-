@@ -53,7 +53,6 @@ body {
   padding-bottom: 10px;
 }
 
-/* Messages */
 .msg {
   max-width: 75%;
   padding: 10px 14px;
@@ -84,9 +83,22 @@ body {
   border-radius: 10px;
   font-size: 12px;
   opacity: 0.95;
+  position: relative;
 }
 
-/* Footer and language selector */
+/* Typing dots animation */
+.typing-dots {
+  display: inline-block;
+}
+.typing-dots::after {
+  content: "…";
+  animation: blink 1s infinite;
+}
+@keyframes blink {
+  0%, 50%, 100% { opacity: 0; }
+  25%, 75% { opacity: 1; }
+}
+
 .footer {
   text-align: center;
   font-size: 11px;
@@ -182,19 +194,38 @@ const messages = [
 let index = 0;
 let currentLanguage = "en";
 
+function typeAIMessage(msgElement, fullText, i=0) {
+  if(i < fullText.length) {
+    msgElement.innerText += fullText[i];
+    chat.scrollTop = chat.scrollHeight;
+    setTimeout(() => typeAIMessage(msgElement, fullText, i+1), 40);
+  }
+}
+
 function addMessage() {
   if (index >= messages.length) return;
 
   const msg = document.createElement("div");
   msg.className = "msg " + messages[index].type;
-  msg.dataset.text = JSON.stringify(messages[index].text); // save all languages
-  msg.innerText = messages[index].text[currentLanguage];
-  chat.appendChild(msg);
+  msg.dataset.text = JSON.stringify(messages[index].text);
 
-  chat.scrollTop = chat.scrollHeight;
+  if(messages[index].type === "ai") {
+    msg.innerHTML = "<span class='typing-dots'></span>";
+    chat.appendChild(msg);
+    chat.scrollTop = chat.scrollHeight;
 
-  let delay = messages[index].type === 'ai' ? 1400 : 900;
+    setTimeout(() => {
+      msg.innerHTML = "";
+      typeAIMessage(msg, messages[index].text[currentLanguage]);
+    }, 1000); // AI typing delay
+  } else {
+    msg.innerText = messages[index].text[currentLanguage];
+    chat.appendChild(msg);
+    chat.scrollTop = chat.scrollHeight;
+  }
+
   index++;
+  let delay = messages[index-1].type === 'ai' ? 1800 : 900;
   setTimeout(addMessage, delay);
 }
 
@@ -202,7 +233,11 @@ function updateChatLanguage() {
   currentLanguage = languageSelect.value;
   document.querySelectorAll(".chat .msg").forEach(msg => {
     const textObj = JSON.parse(msg.dataset.text);
-    msg.innerText = textObj[currentLanguage];
+    if(msg.classList.contains("ai")) {
+      msg.innerHTML = textObj[currentLanguage];
+    } else {
+      msg.innerText = textObj[currentLanguage];
+    }
   });
 }
 
