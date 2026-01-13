@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>BAINT AIOPs — Human-Centric AI (Chat Demo)</title>
+<title>BAINT AIOPs — Human-Centric AI</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -16,7 +16,6 @@ body {
   height: 100vh;
 }
 
-/* Device shell */
 .device {
   width: 420px;
   height: 720px;
@@ -28,7 +27,6 @@ body {
   flex-direction: column;
 }
 
-/* Top bar */
 .top-bar {
   height: 40px;
   background: #111;
@@ -40,7 +38,6 @@ body {
   font-size: 14px;
 }
 
-/* Screen */
 .screen {
   flex: 1;
   background: #f9fafb;
@@ -50,36 +47,56 @@ body {
   flex-direction: column;
 }
 
-/* Chat area */
 .chat {
   flex: 1;
   overflow-y: auto;
-  padding-bottom: 10px;
+  padding-bottom: 20px;
 }
 
 /* Message row */
-.row {
+.message {
   display: flex;
   gap: 10px;
-  margin-bottom: 18px; /* breathing space */
-  align-items: flex-end;
+  margin-bottom: 18px;
+  align-items: flex-start;
 }
-
-/* Alignments */
-.right { justify-content: flex-end; }
-.center { justify-content: center; }
 
 /* Avatar */
 .avatar {
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
+  font-size: 13px;
+  font-weight: bold;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
-  font-weight: bold;
   flex-shrink: 0;
+}
+
+.teacher-avatar {
+  background: #2563eb;
+  color: #fff;
+}
+
+.student-avatar {
+  background: #e5e7eb;
+  color: #111;
+}
+
+.ai-avatar img {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+}
+
+/* Bubble */
+.bubble {
+  max-width: 70%;
+  padding: 12px 14px;
+  border-radius: 14px;
+  font-size: 13px;
+  line-height: 1.6;
 }
 
 .teacher {
@@ -88,52 +105,16 @@ body {
 }
 
 .student {
-  background: #6b7280;
-  color: #fff;
-}
-
-.ai-avatar {
-  background: #111827;
-  padding: 4px;
-}
-
-.ai-avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-/* Message bubble */
-.msg {
-  max-width: 70%;
-  padding: 12px 14px;
-  border-radius: 14px;
-  font-size: 13px;
-  line-height: 1.6;
-}
-
-/* Message styles */
-.teacher-msg {
-  background: #2563eb;
-  color: #fff;
-  border-bottom-right-radius: 4px;
-}
-
-.student-msg {
   background: #e5e7eb;
   color: #111;
-  border-bottom-left-radius: 4px;
 }
 
-.ai-msg {
+.ai {
   background: #111827;
   color: #e5e7eb;
   font-size: 12px;
-  text-align: center;
-  opacity: 0.95;
 }
 
-/* Footer */
 .footer {
   text-align: center;
   font-size: 11px;
@@ -150,9 +131,7 @@ body {
 
   <div class="screen">
     <div class="chat" id="chat"></div>
-    <div class="footer">
-      Humans communicate • BAINT AIOPs assists
-    </div>
+    <div class="footer">Humans communicate • BAINT AIOPs assists</div>
   </div>
 </div>
 
@@ -160,13 +139,12 @@ body {
 const chat = document.getElementById("chat");
 
 const messages = [
-  { role: "student", text: "I’m trying to understand photosynthesis, but it feels confusing." },
-  { role: "teacher", text: "That’s okay. Let’s explain it step by step, slowly." },
-  { role: "ai", text: "BAINT AIOPs suggests breaking the lesson into simple stages and letting the teacher control the pace." },
-  { role: "teacher", text: "So the AI helps organize, but I still teach?" },
-  { role: "ai", text: "Correct. BAINT AIOPs assists. Humans remain in control of learning." },
-  { role: "student", text: "That makes it easier to follow and ask questions." },
-  { role: "ai", text: "Result: clearer understanding, reduced confusion, and human-led education." }
+  { role: "student", avatar: "S", text: "I’m trying to understand photosynthesis but it feels confusing." },
+  { role: "teacher", avatar: "T", text: "That’s okay. Let’s go step by step so it’s easy to follow." },
+  { role: "ai", text: "BAINT AIOPs suggests breaking the lesson into simple stages, guided by the teacher." },
+  { role: "teacher", avatar: "T", text: "So the AI helps organize ideas, not replace teaching?" },
+  { role: "ai", text: "Correct. BAINT AIOPs supports humans. Teachers remain fully in control." },
+  { role: "student", avatar: "S", text: "That makes learning feel calmer and clearer." }
 ];
 
 let index = 0;
@@ -174,36 +152,31 @@ let index = 0;
 function addMessage() {
   if (index >= messages.length) return;
 
-  const data = messages[index];
+  const m = messages[index];
   const row = document.createElement("div");
-  row.className = "row";
+  row.className = "message";
 
-  if (data.role === "teacher") {
-    row.classList.add("right");
-    row.innerHTML = `
-      <div class="msg teacher-msg">${data.text}</div>
-      <div class="avatar teacher">T</div>
+  const avatar = document.createElement("div");
+  avatar.className = "avatar";
+
+  if (m.role === "ai") {
+    avatar.classList.add("ai-avatar");
+    avatar.innerHTML = `
+      <img src="data:image/jpeg;base64,YOUR_BASE64_HERE">
     `;
+  } else {
+    avatar.classList.add(m.role + "-avatar");
+    avatar.textContent = m.avatar;
   }
 
-  if (data.role === "student") {
-    row.innerHTML = `
-      <div class="avatar student">S</div>
-      <div class="msg student-msg">${data.text}</div>
-    `;
-  }
+  const bubble = document.createElement("div");
+  bubble.className = "bubble " + m.role;
+  bubble.textContent = m.text;
 
-  if (data.role === "ai") {
-    row.classList.add("center");
-    row.innerHTML = `
-      <div class="avatar ai-avatar">
-        <img src="assets/baint-logo.png" alt="BAINT AIOPs">
-      </div>
-      <div class="msg ai-msg">${data.text}</div>
-    `;
-  }
-
+  row.appendChild(avatar);
+  row.appendChild(bubble);
   chat.appendChild(row);
+
   chat.scrollTop = chat.scrollHeight;
   index++;
 
